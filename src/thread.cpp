@@ -11,6 +11,57 @@
 #include <iostream>
 using namespace std;
 
+ThreadControl::ThreadControl(pthread_t tid)
+{
+    _tid = tid;
+}
+
+ThreadControl::~ThreadControl()
+{
+}
+
+void ThreadControl::Join()
+{
+    if (pthread_self() == _tid)
+    {
+        throw ThreadException("ThreadControl::Join Same Thread");
+    }
+
+    int ret = pthread_join(_tid, NULL);
+    if (ret != 0)
+    {
+        throw ThreadException("ThreadControl::Join", ret);
+    }
+}
+
+void ThreadControl::Stop()
+{
+    if (pthread_self() == _tid)
+    {
+        throw ThreadException("ThreadControl::Join Same Thread");
+    }
+
+    int ret = pthread_cancel(_tid);
+    if (ret != 0)
+    {
+        throw ThreadException("ThreadControl::Stop", ret);
+    }
+}
+
+void ThreadControl::Detach()
+{
+    int ret = pthread_detach(_tid);
+    if (ret != 0)
+    {
+        throw ThreadException("Thread::Detach", ret);
+    }
+}
+
+pthread_t ThreadControl::Id()
+{
+    return _tid;
+}
+
 Thread::Thread()
 {
     _tid = -1;
@@ -19,14 +70,9 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-    if (IsAlive())
-    {
-        Stop();
-        Wait();
-    }
 }
 
-void Thread::Start()
+ThreadControl Thread::Run()
 {
     if (_is_alive)
     {
@@ -38,6 +84,8 @@ void Thread::Start()
     {
         throw ThreadException("Thread::Start", _tid);
     }
+
+    return ThreadControl(_tid);
 }
 
 void *Thread::CallBack(void *arg)
@@ -59,25 +107,12 @@ void *Thread::CallBack(void *arg)
     return NULL;
 }
 
-void Thread::Wait()
-{
-    int ret = pthread_join(_tid, NULL);
-    if (ret != ESRCH)
-    {
-        throw ThreadException("Thread::Wait", ret);
-    }
-}
-
-void Thread::Stop()
-{
-    if (_is_alive)
-    {
-        _is_alive = false;
-        pthread_exit(NULL);
-    }
-}
-
 bool Thread::IsAlive() const
 {
     return _is_alive;
+}
+
+ThreadControl Thread::GetThreadControl()
+{
+    return ThreadControl(_tid);
 }

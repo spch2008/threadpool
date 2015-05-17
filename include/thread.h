@@ -22,15 +22,30 @@ public:
     ~ThreadException() throw() {}
 };
 
+class ThreadControl
+{
+public:
+    explicit ThreadControl(pthread_t tid);
+    ~ThreadControl();
+
+    void Join();
+    void Stop();
+    void Detach();
+    pthread_t Id();
+
+private:
+    pthread_t _tid;
+};
+
 class Thread
 {
 public:
     Thread();
     virtual ~Thread();
 
-    void Start();
-    void Stop();
-    void Wait();
+    ThreadControl Run();
+    ThreadControl GetThreadControl();
+
     bool IsAlive() const;
     virtual void Handler() = 0;
 
