@@ -13,38 +13,72 @@ using namespace std;
 Thread::Thread()
 {
     _tid = -1;
+    _is_alive = false;
 }
 
 Thread::~Thread()
 {
     Stop();
-    Wait();
 }
 
-bool Thread::Start()
+void Thread::Start()
 {
+    if (_is_alive)
+    {
+        throw ThreadException("Thread::Start Already Running!");
+    }
+
     _tid = pthread_create(&_tid, NULL, Thread::CallBack, this);
-
-    return _tid == 0;
-}
-
-void Thread::Stop()
-{
-    pthread_exit(NULL);
+    if (_tid != 0)
+    {
+        throw ThreadException("Thread::Start", _tid);
+    }
 }
 
 void *Thread::CallBack(void *arg)
 {
-    if (arg != NULL)
+    Thread *thread = reinterpret_cast<Thread*>(arg);
+    thread->_is_alive = true;
+
+    try
     {
-        Thread *thread = reinterpret_cast<Thread*>(arg);
         thread->Handler();
     }
+    catch(...)
+    {
+        thread->_is_alive = false;
+        throw;
+    }
 
+    thread->_is_alive = false;
     return NULL;
 }
 
 void Thread::Wait()
 {
+    /*
+    int ret = pthread_join(_tid, NULL);
+    if (ret != ESRCH)
+    {
+        throw ThreadException("Thread::Wait", ret);
+    }
+    */
+
     pthread_join(_tid, NULL);
+}
+
+void Thread::Stop()
+{
+    if (_is_alive)
+    {
+        _is_alive = false;
+        pthread_exit(NULL);
+    }
+
+    Wait();
+}
+
+bool Thread::IsAlive() const
+{
+    return _is_alive;
 }
