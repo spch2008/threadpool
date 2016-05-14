@@ -19,6 +19,7 @@ public:
     virtual ~MutexException() throw() {}
 };
 
+class ThreadCond;
 class ThreadMutex
 {
 public:
@@ -31,6 +32,7 @@ public:
 
 private:
     pthread_mutex_t _mutex;
+    friend class ThreadCond;
 };
 
 #endif
