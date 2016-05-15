@@ -16,6 +16,9 @@ template <typename Item>
 class ThreadQueue
 {
 public:
+    ThreadQueue() {}
+    ~ThreadQueue() {}
+
     void Push(const Item &item);
     bool Pop(Item *item);
     bool Empty() const;
