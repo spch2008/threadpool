@@ -52,7 +52,7 @@ bool ThreadQueue<Item>::Pop(Item *item)
 }
 
 template <typename Item>
-bool ThreadQueue<Item>::Empty()
+bool ThreadQueue<Item>::Empty() const
 {
     ThreadLocker::Locker lock(&_locker);
     return _queue.empty();
