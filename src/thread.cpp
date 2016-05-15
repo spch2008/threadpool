@@ -7,6 +7,7 @@
 
 #include "thread.h"
 #include <unistd.h>
+#include <errno.h>
 #include <iostream>
 using namespace std;
 
@@ -56,15 +57,11 @@ void *Thread::CallBack(void *arg)
 
 void Thread::Wait()
 {
-    /*
     int ret = pthread_join(_tid, NULL);
     if (ret != ESRCH)
     {
         throw ThreadException("Thread::Wait", ret);
     }
-    */
-
-    pthread_join(_tid, NULL);
 }
 
 void Thread::Stop()
