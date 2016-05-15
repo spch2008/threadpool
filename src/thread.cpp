@@ -19,7 +19,11 @@ Thread::Thread()
 
 Thread::~Thread()
 {
-    Stop();
+    if (IsAlive())
+    {
+        Stop();
+        Wait();
+    }
 }
 
 void Thread::Start()
@@ -71,8 +75,6 @@ void Thread::Stop()
         _is_alive = false;
         pthread_exit(NULL);
     }
-
-    Wait();
 }
 
 bool Thread::IsAlive() const
