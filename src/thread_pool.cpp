@@ -24,7 +24,7 @@ void ThreadPool::Init(int thread_num)
     }
 }
 
-void ThreadPool::Start()
+void ThreadPool::Run()
 {
     for (size_t i = 0; i < _job_queues.size(); i++)
     {
