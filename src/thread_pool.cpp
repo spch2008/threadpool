@@ -13,6 +13,12 @@ ThreadPool::ThreadPool()
 
 ThreadPool::~ThreadPool()
 {
+    for (size_t i = 0; i < _job_queues.size(); i++)
+    {
+        delete _job_queues[i];
+    }
+
+    _job_queues.clear();
 }
 
 void ThreadPool::Init(int thread_num)
@@ -38,7 +44,12 @@ void ThreadPool::Stop()
     for (size_t i = 0; i < _job_queues.size(); i++)
     {
         WorkerThread *worker = _job_queues[i];
-        worker->Terminate();
+        
+        if (worker->IsAlive())
+        {
+            worker->GetThreadControl().Stop();
+            worker->GetThreadControl().Join();
+        }
     }
 }
 
@@ -50,6 +61,7 @@ void ThreadPool::Exit(WorkerThread *worker)
     {
         if (*iter == worker)
         {
+            delete worker;
             _job_queues.erase(iter);
             break;
         }
@@ -66,8 +78,11 @@ Task *ThreadPool::GetTask(WorkerThread *worker)
     Task *task = NULL;
     _task_list.Pop(&task);
 
-    ThreadLocker::Locker sync(&_thread_locker);
-    _busy_queues.insert(worker);
+    if (task != NULL)
+    {
+        ThreadLocker::Locker sync(&_thread_locker);
+        _busy_queues.insert(worker);
+    }
 
     return task;
 }
@@ -78,9 +93,30 @@ void ThreadPool::Idle(WorkerThread *worker)
     _busy_queues.erase(worker);
 }
 
+void ThreadPool::Notify()
+{
+    _task_list.Notify();
+}
+
+void ThreadPool::WaitForAllDone()
+{
+    ThreadLocker::Locker sync(&_thread_locker);
+    while (true)
+    {
+        if (_busy_queues.empty() && _job_queues.empty())
+        {
+            break;
+        }
+        else
+        {
+            _thread_locker.TimedWait(1000);
+        }
+    }
+}
+
 void ThreadPool::WorkerThread::Handler()
 {
-    while (!_terminate)
+    while (!_end)
     {
         Task *task = _thread_pool->GetTask(this);
         if (task != NULL)
@@ -103,10 +139,15 @@ void ThreadPool::WorkerThread::Handler()
 ThreadPool::WorkerThread::WorkerThread(ThreadPool *thread_pool)
 {
     _thread_pool = thread_pool;
-    _terminate   = false;
+    _end         = false;
 }
 
-void ThreadPool::WorkerThread::Terminate()
+ThreadPool::WorkerThread::~WorkerThread()
 {
-    _terminate = true;
+}
+
+void ThreadPool::WorkerThread::Stop()
+{
+    _end = true;
+    _thread_pool->Notify();
 }

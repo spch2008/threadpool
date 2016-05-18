@@ -35,28 +35,34 @@ public:
     
     void Run();
     void Stop();
+
     void WaitForAllDone();
-    void Init(int thread_num);
     void AddTask(Task *task);
+    void Init(int thread_num);
 
 protected:
     class WorkerThread : public Thread
     {
     public:
         WorkerThread(ThreadPool *thread_pool);
-        void Terminate();
+        ~WorkerThread();
+
+        void Stop();
     
     protected:
         void Handler();
 
     private:
         ThreadPool *_thread_pool;
-        bool        _terminate;
+        bool        _end;
     };
 
     Task *GetTask(WorkerThread *worker);
     void  Idle(WorkerThread *worker);
     void  Exit(WorkerThread *worker);
+    void  Notify();
+
+    friend class WorkerThread;
 
 private:
     set<WorkerThread*>    _busy_queues;
