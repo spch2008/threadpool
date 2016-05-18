@@ -43,6 +43,11 @@ template <typename Item>
 bool ThreadQueue<Item>::Pop(Item *item)
 {
     ThreadLocker::Locker lock(&_locker);
+    while (_queue.empty())
+    {
+        _thread_locker.Wait();
+    }
+
     if (_queue.empty())
     {
         return false;
