@@ -51,6 +51,8 @@ bool ThreadQueue<Item>::Pop(Item *item)
     {
         *item = _queue.front();
         _queue.pop_front();
+
+        return true;
     }
 }
 
