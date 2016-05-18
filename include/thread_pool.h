@@ -14,37 +14,56 @@
 #include "task.h"
 #include "thread.h"
 #include "thread_queue.h"
+#include "thread_locker.h"
 
 using std::set;
 using std::vector;
+
+class PoolException : public Exception
+{
+public:
+    PoolException(const string &err) : Exception(err) {}
+    PoolException(const string &err, int code) : Exception(err, code) {}
+    ~PoolException() throw() {}
+};
 
 class ThreadPool
 {
 public:
     ThreadPool();
     ~ThreadPool();
-
-    void Init(int thread_num);
+    
+    void Start();
     void Stop();
+    void WaitForAllDone();
+    void Init(int thread_num);
+    void AddTask(Task *task);
 
 protected:
     class WorkerThread : public Thread
     {
     public:
-        WorkerThread();
-        ~WorkerThread();
-
+        WorkerThread(ThreadPool *thread_pool);
+        void Terminate();
+    
+    protected:
         void Handler();
 
     private:
         ThreadPool *_thread_pool;
+        bool        _terminate;
     };
+
+    Task *GetTask(WorkerThread *worker);
+    void  Idle(WorkerThread *worker);
+    void  Exit(WorkerThread *worker);
 
 private:
     set<WorkerThread*>    _busy_queues;
     vector<WorkerThread*> _job_queues; 
 
-    ThreadQueue<Task*> _job_list;
+    ThreadQueue<Task*> _task_list;
+    ThreadLocker       _thread_locker;
 };
 
 #endif

@@ -45,7 +45,7 @@ bool ThreadQueue<Item>::Pop(Item *item)
     ThreadLocker::Locker lock(&_locker);
     while (_queue.empty())
     {
-        _thread_locker.Wait();
+        _locker.Wait();
     }
 
     if (_queue.empty())
