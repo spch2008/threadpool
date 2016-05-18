@@ -19,9 +19,11 @@ public:
     ThreadQueue() {}
     ~ThreadQueue() {}
 
-    void Push(const Item &item);
-    bool Pop(Item *item);
     bool Empty() const;
+    bool Pop(Item *item);
+
+    void Notify();
+    void Push(const Item &item);
 
 protected:
     ThreadQueue(const ThreadQueue &);
@@ -43,7 +45,7 @@ template <typename Item>
 bool ThreadQueue<Item>::Pop(Item *item)
 {
     ThreadLocker::Locker lock(&_locker);
-    while (_queue.empty())
+    if (_queue.empty())
     {
         _locker.Wait();
     }
@@ -66,6 +68,12 @@ bool ThreadQueue<Item>::Empty() const
 {
     ThreadLocker::Locker lock(&_locker);
     return _queue.empty();
+}
+
+template <typename Item>
+void ThreadQueue<Item>::Notify()
+{
+    _locker.BroadCast();
 }
 
 #endif
