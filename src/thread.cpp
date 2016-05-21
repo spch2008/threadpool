@@ -79,10 +79,10 @@ ThreadControl Thread::Run()
         throw ThreadException("Thread::Start Already Running!");
     }
 
-    _tid = pthread_create(&_tid, NULL, Thread::CallBack, this);
-    if (_tid != 0)
+    int ret = pthread_create(&_tid, NULL, Thread::CallBack, this);
+    if (ret != 0)
     {
-        throw ThreadException("Thread::Start", _tid);
+        throw ThreadException("Thread::Start", ret);
     }
 
     return ThreadControl(_tid);
