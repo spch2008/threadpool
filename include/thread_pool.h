@@ -48,8 +48,6 @@ protected:
         ~WorkerThread();
 
         void Stop();
-    
-    protected:
         void Handler();
 
     private:
