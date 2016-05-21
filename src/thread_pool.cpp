@@ -30,7 +30,7 @@ void ThreadPool::Init(int thread_num)
     }
 }
 
-void ThreadPool::Run()
+void ThreadPool::Start()
 {
     for (size_t i = 0; i < _job_queues.size(); i++)
     {

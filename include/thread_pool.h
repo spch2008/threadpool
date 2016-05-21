@@ -33,7 +33,7 @@ public:
     ThreadPool();
     ~ThreadPool();
     
-    void Run();
+    void Start();
     void Stop();
 
     void WaitForAllDone();
