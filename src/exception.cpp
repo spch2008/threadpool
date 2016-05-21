@@ -15,7 +15,7 @@ Exception::Exception(const string &text)
 
 Exception::Exception(const string &text, int code)
 {
-    _text = text + strerror(code);
+    _text = text + " " + strerror(code);
     _code = code;
 }
 
