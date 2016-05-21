@@ -22,7 +22,7 @@ void ThreadLocker::Lock()
 
 void ThreadLocker::UnLock()
 {
-    _thread_mutex.TryLock();
+    _thread_mutex.UnLock();
 }
 
 bool ThreadLocker::TryLock()
