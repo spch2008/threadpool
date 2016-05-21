@@ -12,6 +12,7 @@ class Task
 {
 public:
     virtual void Exec() = 0;
+    virtual ~Task() {}
 };
 
 #endif
