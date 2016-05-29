@@ -63,7 +63,7 @@ bool ThreadCond::TimedWait(int millisecond, ThreadMutex *mutex)
     }
     else if (ret == ETIMEDOUT)
     {
-            return false;
+        return false;
     }
     else
     {
@@ -83,4 +83,3 @@ void ThreadCond::GetAbsTime(int millisecond, TimeSpec *time_spec)
     time_spec->tv_sec  =  usec / 1000000;
     time_spec->tv_nsec = (usec % 1000000) * 1000;
 }
-

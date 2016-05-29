@@ -30,6 +30,10 @@ public:
     void UnLock();
     bool TryLock();
 
+protected:
+    ThreadMutex(const ThreadMutex &);
+    ThreadMutex &operator=(const ThreadMutex &);
+
 private:
     pthread_mutex_t _mutex;
     friend class ThreadCond;

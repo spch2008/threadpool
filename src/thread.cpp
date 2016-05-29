@@ -6,8 +6,8 @@
 **/
 
 #include "thread.h"
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
 #include <iostream>
 using namespace std;
 
