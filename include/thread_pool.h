@@ -33,11 +33,11 @@ public:
     ThreadPool();
     ~ThreadPool();
     
-    void Start();
+    void Run();
     void Stop();
 
     void WaitForAllDone();
-    void AddTask(Task *task);
+    bool AddTask(Task *task);
     void Init(int thread_num);
 
 protected:
@@ -52,22 +52,26 @@ protected:
 
     private:
         ThreadPool *_thread_pool;
-        bool        _end;
+        bool        _finished;
     };
 
     Task *GetTask(WorkerThread *worker);
     void  Idle(WorkerThread *worker);
     void  Exit(WorkerThread *worker);
+    void  ClearWork();
+    void  ClearTask();
     void  Notify();
 
     friend class WorkerThread;
 
 private:
-    set<WorkerThread*>    _busy_queues;
-    vector<WorkerThread*> _job_queues; 
+    set<WorkerThread*>    _busy_threads;
+    vector<WorkerThread*> _work_threads; 
 
     ThreadQueue<Task*> _task_list;
     ThreadLocker       _thread_locker;
+
+    bool _is_alive;
 };
 
 #endif

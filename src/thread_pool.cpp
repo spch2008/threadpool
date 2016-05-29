@@ -6,19 +6,38 @@
 **/
 
 #include "thread_pool.h"
+#include <memory>
 
 ThreadPool::ThreadPool()
 {
+    _is_alive = true;
 }
 
 ThreadPool::~ThreadPool()
 {
-    for (size_t i = 0; i < _job_queues.size(); i++)
+    ClearWork();
+    ClearTask();
+}
+
+void ThreadPool::ClearWork()
+{
+    for (size_t i = 0; i < _work_threads.size(); i++)
     {
-        delete _job_queues[i];
+        delete _work_threads[i];
     }
 
-    _job_queues.clear();
+    _work_threads.clear();
+}
+
+void ThreadPool::ClearTask()
+{
+    while(!_task_list.Empty())
+    {
+        Task *task = NULL;
+        _task_list.Pop(&task);
+
+        delete task;
+    }
 }
 
 void ThreadPool::Init(int thread_num)
@@ -26,28 +45,31 @@ void ThreadPool::Init(int thread_num)
     for (int i = 0; i < thread_num; i++)
     {
         WorkerThread *worker = new WorkerThread(this);
-        _job_queues.push_back(worker);
+        _work_threads.push_back(worker);
     }
 }
 
-void ThreadPool::Start()
+void ThreadPool::Run()
 {
-    for (size_t i = 0; i < _job_queues.size(); i++)
+    for (size_t i = 0; i < _work_threads.size(); i++)
     {
-        WorkerThread *worker = _job_queues[i];
+        WorkerThread *worker = _work_threads[i];
         worker->Run();
     }
 }
 
 void ThreadPool::Stop()
 {
-    for (size_t i = 0; i < _job_queues.size(); i++)
+    _is_alive = false;
+    ClearTask();
+
+    for (size_t i = 0; i < _work_threads.size(); i++)
     {
-        WorkerThread *worker = _job_queues[i];
+        WorkerThread *worker = _work_threads[i];
         
         if (worker->IsAlive())
         {
-            worker->GetThreadControl().Stop();
+            worker->Stop();
             worker->GetThreadControl().Join();
         }
     }
@@ -55,22 +77,30 @@ void ThreadPool::Stop()
 
 void ThreadPool::Exit(WorkerThread *worker)
 {
-    for (vector<WorkerThread*>::iterator iter = _job_queues.begin();
-         iter != _job_queues.end();
+    for (vector<WorkerThread*>::iterator iter = _work_threads.begin();
+         iter != _work_threads.end();
          iter ++)
     {
         if (*iter == worker)
         {
             delete worker;
-            _job_queues.erase(iter);
+            _work_threads.erase(iter);
             break;
         }
     }
 }
 
-void ThreadPool::AddTask(Task *task)
+bool ThreadPool::AddTask(Task *task)
 {
-    _task_list.Push(task);
+    if (_is_alive)
+    {
+        _task_list.Push(task);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 Task *ThreadPool::GetTask(WorkerThread *worker)
@@ -81,7 +111,7 @@ Task *ThreadPool::GetTask(WorkerThread *worker)
     if (task != NULL)
     {
         ThreadLocker::Locker sync(&_thread_locker);
-        _busy_queues.insert(worker);
+        _busy_threads.insert(worker);
     }
 
     return task;
@@ -90,7 +120,7 @@ Task *ThreadPool::GetTask(WorkerThread *worker)
 void ThreadPool::Idle(WorkerThread *worker)
 {
     ThreadLocker::Locker sync(&_thread_locker);
-    _busy_queues.erase(worker);
+    _busy_threads.erase(worker);
 }
 
 void ThreadPool::Notify()
@@ -103,7 +133,7 @@ void ThreadPool::WaitForAllDone()
     ThreadLocker::Locker sync(&_thread_locker);
     while (true)
     {
-        if (_busy_queues.empty() && _job_queues.empty())
+        if (_busy_threads.empty() && _task_list.Empty())
         {
             break;
         }
@@ -116,11 +146,13 @@ void ThreadPool::WaitForAllDone()
 
 void ThreadPool::WorkerThread::Handler()
 {
-    while (!_end)
+    while (!_finished)
     {
         Task *task = _thread_pool->GetTask(this);
         if (task != NULL)
         {
+            auto_ptr<Task> at_task(task);
+
             try
             {
                 task->Exec();
@@ -139,7 +171,7 @@ void ThreadPool::WorkerThread::Handler()
 ThreadPool::WorkerThread::WorkerThread(ThreadPool *thread_pool)
 {
     _thread_pool = thread_pool;
-    _end         = false;
+    _finished    = false;
 }
 
 ThreadPool::WorkerThread::~WorkerThread()
@@ -148,6 +180,6 @@ ThreadPool::WorkerThread::~WorkerThread()
 
 void ThreadPool::WorkerThread::Stop()
 {
-    _end = true;
+    _finished = true;
     _thread_pool->Notify();
 }
