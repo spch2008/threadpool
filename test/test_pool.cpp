@@ -25,7 +25,7 @@ public:
 
 int main()
 {
-    size_t log_cnt = 100;
+    size_t log_cnt = 80;
 
     vector<Task*> log_tasks;
     for (size_t i = 0; i < log_cnt; i++)
@@ -42,14 +42,8 @@ int main()
         thread_pool.AddTask(log_tasks[i]);
     }
 
-    thread_pool.Start();
+    thread_pool.Run();
     thread_pool.WaitForAllDone();
-
-    for (size_t i = 0; i < log_cnt; i++)
-    {
-        delete log_tasks[i];
-    }
-    log_tasks.clear();
 
     return 0;
 }
