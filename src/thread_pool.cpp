@@ -61,7 +61,6 @@ void ThreadPool::Run()
 void ThreadPool::Stop()
 {
     _is_alive = false;
-    ClearTask();
 
     for (size_t i = 0; i < _work_threads.size(); i++)
     {
@@ -73,21 +72,14 @@ void ThreadPool::Stop()
             worker->GetThreadControl().Join();
         }
     }
+
+    ClearTask();
+    ClearWork();
 }
 
 void ThreadPool::Exit(WorkerThread *worker)
 {
-    for (vector<WorkerThread*>::iterator iter = _work_threads.begin();
-         iter != _work_threads.end();
-         iter ++)
-    {
-        if (*iter == worker)
-        {
-            delete worker;
-            _work_threads.erase(iter);
-            break;
-        }
-    }
+    /* do some thread end op */
 }
 
 bool ThreadPool::AddTask(Task *task)
@@ -142,6 +134,9 @@ void ThreadPool::WaitForAllDone()
             _thread_locker.TimedWait(1000);
         }
     }
+
+    /* stop all thread */
+    Stop();
 }
 
 void ThreadPool::WorkerThread::Handler()
