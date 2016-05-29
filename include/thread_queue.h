@@ -31,7 +31,7 @@ protected:
 
 private:
     list<Item>   _queue;
-    ThreadLocker _locker;
+    mutable ThreadLocker _locker;
 };
 
 template <typename Item>
