@@ -12,9 +12,12 @@
 #include "thread_locker.h"
 using std::list;
 
-template <typename Item>
+template <typename Item, typename Type = list<Item> >
 class ThreadQueue
 {
+public:
+    typedef Type QueueType;
+
 public:
     ThreadQueue() {}
     ~ThreadQueue() {}
@@ -24,25 +27,40 @@ public:
 
     void Notify();
     void Push(const Item &item);
+    void Push(const QueueType &queue);
 
 protected:
     ThreadQueue(const ThreadQueue &);
     ThreadQueue &operator=(const ThreadQueue &);
 
 private:
-    list<Item>   _queue;
+    QueueType   _queue;
     mutable ThreadLocker _locker;
 };
 
-template <typename Item>
-void ThreadQueue<Item>::Push(const Item &item)
+template <typename Item, typename Type>
+void ThreadQueue<Item, Type>::Push(const Item &item)
 {
-    ThreadLocker::Locker lock(&_locker);
-    _queue.push_back(item);
+    {
+        ThreadLocker::Locker lock(&_locker);
+        _queue.push_back(item);
+    }
+
+    _locker.Signal();
 }
 
-template <typename Item>
-bool ThreadQueue<Item>::Pop(Item *item)
+template <typename Item, typename Type>
+void ThreadQueue<Item, Type>::Push(const QueueType &queue)
+{
+    typename QueueType::const_iterator iter = queue.begin();
+    for ( ; iter != queue.end(); iter++)
+    {
+        Push(*iter);
+    }
+}
+
+template <typename Item, typename Type>
+bool ThreadQueue<Item, Type>::Pop(Item *item)
 {
     ThreadLocker::Locker lock(&_locker);
     if (_queue.empty())
@@ -63,15 +81,15 @@ bool ThreadQueue<Item>::Pop(Item *item)
     }
 }
 
-template <typename Item>
-bool ThreadQueue<Item>::Empty() const
+template <typename Item, typename Type>
+bool ThreadQueue<Item, Type>::Empty() const
 {
     ThreadLocker::Locker lock(&_locker);
     return _queue.empty();
 }
 
-template <typename Item>
-void ThreadQueue<Item>::Notify()
+template <typename Item, typename Type>
+void ThreadQueue<Item, Type>::Notify()
 {
     _locker.BroadCast();
 }

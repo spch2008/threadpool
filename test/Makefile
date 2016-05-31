@@ -17,9 +17,12 @@ OBJS=$(SRCS:.cpp=.o)
 LIBPREX=thread
 LIBNAME=lib$(LIBPREX).a
 
-EXEC = main
+EXEC = pool queue
 
-$(EXEC) : $(OBJS)
+pool : test_pool.o
+	$(CC) $^ $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@
+
+queue : test_queue.o
 	$(CC) $^ $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@
 
 %.o : %.cpp
