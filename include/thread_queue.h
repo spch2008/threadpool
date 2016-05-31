@@ -37,12 +37,8 @@ private:
 template <typename Item>
 void ThreadQueue<Item>::Push(const Item &item)
 {
-    {
-        ThreadLocker::Locker lock(&_locker);
-        _queue.push_back(item);
-    }
-
-    _locker.Signal();
+    ThreadLocker::Locker lock(&_locker);
+    _queue.push_back(item);
 }
 
 template <typename Item>
