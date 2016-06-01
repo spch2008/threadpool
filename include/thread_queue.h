@@ -41,21 +41,20 @@ private:
 template <typename Item, typename Type>
 void ThreadQueue<Item, Type>::Push(const Item &item)
 {
-    {
-        ThreadLocker::Locker lock(&_locker);
-        _queue.push_back(item);
-    }
-
-    _locker.Signal();
+    ThreadLocker::Locker lock(&_locker);
+    _queue.push_back(item);
+    _locker.Notify();
 }
 
 template <typename Item, typename Type>
 void ThreadQueue<Item, Type>::Push(const QueueType &queue)
 {
+    ThreadLocker::Locker lock(&_locker);
     typename QueueType::const_iterator iter = queue.begin();
     for ( ; iter != queue.end(); iter++)
     {
-        Push(*iter);
+        _queue.push_back(*iter);
+        _locker.Notify();
     }
 }
 
@@ -91,7 +90,8 @@ bool ThreadQueue<Item, Type>::Empty() const
 template <typename Item, typename Type>
 void ThreadQueue<Item, Type>::Notify()
 {
-    _locker.BroadCast();
+    ThreadLocker::Locker lock(&_locker);
+    _locker.NotifyAll();
 }
 
 #endif

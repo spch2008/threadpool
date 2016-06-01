@@ -44,8 +44,8 @@ public:
     void UnLock();
     bool TryLock();
 
-    void Signal();
-    void BroadCast();
+    void Notify();
+    void NotifyAll();
 
     void Wait();
     bool TimedWait(int millisecond);
@@ -56,9 +56,15 @@ protected:
     ThreadLocker(const ThreadLocker &);
     ThreadLocker &operator=(const ThreadLocker &);
 
+    void Signal();
+    void BroadCast();
+    void NotifyImpl();
+
 private:
     ThreadMutex _thread_mutex;
     ThreadCond  _thread_cond;
+
+    int _notify_num;
 };
 
 #endif
