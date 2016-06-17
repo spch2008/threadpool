@@ -8,21 +8,35 @@
 #ifndef _THREAD_DATA_H_
 #define _THREAD_DATA_H_
 
+#include <pthread.h>
+
 class ThreadData
 {
 public:
-    ThreadData();
-    ~ThreadData();
+    ThreadData() {}
+    virtual ~ThreadData() {}
+};
 
-    void SetData(void *);
-    void GetData();
-
+class ThreadDataManager
+{
+public:
+    typedef pthread_key_t ThreadDataKey;
     
+    ThreadDataManager();
+    ~ThreadDataManager();
+
+    void SetData(ThreadData *data);
+    void SetData(ThreadDataKey key, ThreadData *data);
+
+    ThreadData *GetData();
+    ThreadData *GetData(ThreadDataKey key);
 
 private:
-    ThredData(const ThreadData &);
-    ThreadData &operator=(const ThreadData &);
+    ThreadDataManager(const ThreadDataManager &);
+    ThreadDataManager &operator=(const ThreadDataManager &);
 
+private:
+    static pthread_key_t gThreadKey;
 };
 
 #endif
