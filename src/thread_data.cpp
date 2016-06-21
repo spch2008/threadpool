@@ -66,12 +66,12 @@ void ThreadDataManager::SetData(ThreadDataKey key, ThreadData  *data)
     }
 }
 
-ThreadData *ThreadDataManager::GetData()
+ThreadDataManager::ThreadData *ThreadDataManager::GetData()
 {
     return static_cast<ThreadData*>(pthread_getspecific(gThreadKey));
 }
 
-ThreadData *ThreadDataManager::GetData(ThreadDataKey key)
+ThreadDataManager::ThreadData *ThreadDataManager::GetData(ThreadDataKey key)
 {
     return static_cast<ThreadData*>(pthread_getspecific(key));
 }

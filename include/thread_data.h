@@ -19,18 +19,17 @@ public:
     ~ThreadDataException() throw() {}
 };
 
-
-class ThreadData
-{
-public:
-    ThreadData() {}
-    virtual ~ThreadData() {}
-};
-
 class ThreadDataManager
 {
 public:
     typedef pthread_key_t ThreadDataKey;
+
+    class ThreadData
+    {
+    public:
+        ThreadData() {}
+        virtual ~ThreadData() {}
+    };
     
     ThreadDataManager();
     ~ThreadDataManager();
