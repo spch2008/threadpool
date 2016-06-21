@@ -9,6 +9,16 @@
 #define _THREAD_DATA_H_
 
 #include <pthread.h>
+#include "exception.h"
+
+class ThreadDataException : public Exception
+{
+public:
+    ThreadDataException(const string &err) : Exception(err) {}
+    ThreadDataException(const string &err, int code) : Exception(err, code) {}
+    ~ThreadDataException() throw() {}
+};
+
 
 class ThreadData
 {
@@ -31,12 +41,16 @@ public:
     ThreadData *GetData();
     ThreadData *GetData(ThreadDataKey key);
 
-private:
+protected:
     ThreadDataManager(const ThreadDataManager &);
     ThreadDataManager &operator=(const ThreadDataManager &);
 
+    static void InitKey();
+    static void DelKey(void *);
+
 private:
     static pthread_key_t gThreadKey;
+    static pthread_once_t gOnceControl;
 };
 
 #endif
