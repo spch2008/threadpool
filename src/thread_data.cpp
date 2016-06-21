@@ -7,6 +7,7 @@
 
 #include "thread_data.h"
 
+pthread_key_t gThreadKey;
 pthread_once_t ThreadDataManager::gOnceControl = PTHREAD_ONCE_INIT;
 
 ThreadDataManager::ThreadDataManager()

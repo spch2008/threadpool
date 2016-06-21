@@ -48,7 +48,6 @@ protected:
     static void DelKey(void *);
 
 private:
-    static pthread_key_t gThreadKey;
     static pthread_once_t gOnceControl;
 };
 
