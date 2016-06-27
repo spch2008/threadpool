@@ -5,7 +5,10 @@
 * @brief
 **/
 
+#include <iostream>
+#include <stdlib.h>
 #include "thread_data.h"
+using namespace std;
 
 pthread_key_t gThreadKey;
 pthread_once_t ThreadDataManager::gOnceControl = PTHREAD_ONCE_INIT;
@@ -17,6 +20,7 @@ ThreadDataManager::ThreadDataManager()
 
 ThreadDataManager::~ThreadDataManager()
 {
+//    pthread_key_delete(gThreadKey);
 }
 
 void ThreadDataManager::InitKey()
@@ -28,19 +32,16 @@ void ThreadDataManager::InitKey()
     }
 }
 
-void ThreadDataManager::DelKey(void *)
+void ThreadDataManager::DelKey(void *data)
 {
-    int ret = pthread_key_delete(gThreadKey);
-    if (ret != 0)
-    {
-        throw ThreadDataException("ThreadDataManager::DelKey", ret);
-    }
+    ThreadData *td = static_cast<ThreadData*>(data);
+    delete td;
 }
 
 void ThreadDataManager::SetData(ThreadData *data)
 {
     ThreadData *old_data = GetData();
-    if (old_data != NULL)
+    if (old_data != NULL && old_data != data)
     {
         delete old_data;
     }
@@ -55,7 +56,7 @@ void ThreadDataManager::SetData(ThreadData *data)
 void ThreadDataManager::SetData(ThreadDataKey key, ThreadData  *data)
 {
     ThreadData *old_data = GetData(key);
-    if (old_data != NULL)
+    if (old_data != NULL && old_data != data)
     {
         delete old_data;
     }
@@ -75,4 +76,14 @@ ThreadDataManager::ThreadData *ThreadDataManager::GetData()
 ThreadDataManager::ThreadData *ThreadDataManager::GetData(ThreadDataKey key)
 {
     return static_cast<ThreadData*>(pthread_getspecific(key));
+}
+
+void ThreadDataManager::DelData()
+{
+    SetData(NULL);
+}
+
+void ThreadDataManager::DelData(ThreadDataKey key)
+{
+    SetData(key, NULL);
 }

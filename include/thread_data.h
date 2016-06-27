@@ -10,6 +10,7 @@
 
 #include <pthread.h>
 #include "exception.h"
+#include "thread_locker.h"
 
 class ThreadDataException : public Exception
 {
@@ -39,6 +40,9 @@ public:
 
     ThreadData *GetData();
     ThreadData *GetData(ThreadDataKey key);
+
+    void DelData();
+    void DelData(ThreadDataKey key);
 
 protected:
     ThreadDataManager(const ThreadDataManager &);
