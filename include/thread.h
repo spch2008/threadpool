@@ -8,8 +8,8 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
-#include <string>
 #include <pthread.h>
+#include <string>
 #include "exception.h"
 
 using std::string;
@@ -17,7 +17,7 @@ using std::string;
 class ThreadException : public Exception
 {
 public:
-    ThreadException(const string &err) : Exception(err) {}
+    explicit ThreadException(const string &err) : Exception(err) {}
     ThreadException(const string &err, int code) : Exception(err, code) {}
     ~ThreadException() throw() {}
 };

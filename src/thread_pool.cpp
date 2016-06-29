@@ -8,6 +8,8 @@
 #include "thread_pool.h"
 #include <memory>
 
+using std::auto_ptr;
+
 ThreadPool::ThreadPool()
 {
     _is_alive = true;
@@ -31,7 +33,7 @@ void ThreadPool::ClearWork()
 
 void ThreadPool::ClearTask()
 {
-    while(!_task_list.Empty())
+    while (!_task_list.Empty())
     {
         Task *task = NULL;
         _task_list.Pop(&task);
@@ -65,7 +67,7 @@ void ThreadPool::Stop()
     for (size_t i = 0; i < _work_threads.size(); i++)
     {
         WorkerThread *worker = _work_threads[i];
-        
+
         if (worker->IsAlive())
         {
             worker->Stop();

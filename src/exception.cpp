@@ -7,6 +7,7 @@
 
 #include "exception.h"
 #include <string.h>
+#include <string>
 
 Exception::Exception(const string &text)
     : _text(text), _code(0)

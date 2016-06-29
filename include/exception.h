@@ -11,12 +11,13 @@
 #include <string>
 #include <exception>
 
-using namespace std;
+using std::string;
+using std::exception;
 
 class Exception : public exception
 {
 public:
-    Exception(const string &text);
+    explicit Exception(const string &text);
     Exception(const string &text, int code);
     ~Exception() throw();
 

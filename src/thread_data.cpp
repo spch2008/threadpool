@@ -6,7 +6,6 @@
 **/
 
 #include "thread_data.h"
-using namespace std;
 
 pthread_key_t ThreadDataManager::gThreadKey;
 pthread_once_t ThreadDataManager::gOnceControl = PTHREAD_ONCE_INIT;

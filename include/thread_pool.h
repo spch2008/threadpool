@@ -10,6 +10,7 @@
 
 #include <set>
 #include <vector>
+#include <string>
 
 #include "task.h"
 #include "thread.h"
@@ -22,7 +23,7 @@ using std::vector;
 class PoolException : public Exception
 {
 public:
-    PoolException(const string &err) : Exception(err) {}
+    explicit PoolException(const string &err) : Exception(err) {}
     PoolException(const string &err, int code) : Exception(err, code) {}
     ~PoolException() throw() {}
 };
@@ -32,7 +33,7 @@ class ThreadPool
 public:
     ThreadPool();
     ~ThreadPool();
-    
+
     void Run();
     void Stop();
 
@@ -44,7 +45,7 @@ protected:
     class WorkerThread : public Thread
     {
     public:
-        WorkerThread(ThreadPool *thread_pool);
+        explicit WorkerThread(ThreadPool *thread_pool);
         ~WorkerThread();
 
         void Stop();
@@ -66,7 +67,7 @@ protected:
 
 private:
     set<WorkerThread*>    _busy_threads;
-    vector<WorkerThread*> _work_threads; 
+    vector<WorkerThread*> _work_threads;
 
     ThreadQueue<Task*> _task_list;
     ThreadLocker       _thread_locker;

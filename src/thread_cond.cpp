@@ -9,6 +9,7 @@
 #include "thread_mutex.h"
 #include <sys/time.h>
 #include <errno.h>
+#include <stdint.h>
 
 ThreadCond::ThreadCond()
 {
@@ -76,8 +77,8 @@ void ThreadCond::GetAbsTime(int millisecond, TimeSpec *time_spec)
     timeval time_val;
     gettimeofday(&time_val, NULL);
 
-    long long int usec = time_val.tv_sec * (long long int)1000000 + 
-                         millisecond * (long long int)1000 + 
+    int64_t usec = time_val.tv_sec * static_cast<int64_t>(1000000) +
+                         millisecond * static_cast<int64_t>(1000) +
                          time_val.tv_usec;
 
     time_spec->tv_sec  =  usec / 1000000;

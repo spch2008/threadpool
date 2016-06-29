@@ -8,8 +8,6 @@
 #include "thread.h"
 #include <errno.h>
 #include <unistd.h>
-#include <iostream>
-using namespace std;
 
 ThreadControl::ThreadControl(pthread_t tid)
 {

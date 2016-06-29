@@ -9,12 +9,13 @@
 #define _THREAD_MUTEX_H_
 
 #include <pthread.h>
+#include <string>
 #include "exception.h"
 
 class MutexException : public Exception
 {
 public:
-    MutexException(const string &err) : Exception(err) {}
+    explicit MutexException(const string &err) : Exception(err) {}
     MutexException(const string &err, int code) : Exception(err, code) {}
     virtual ~MutexException() throw() {}
 };

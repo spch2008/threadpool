@@ -15,7 +15,7 @@ template <typename T>
 class LockerManager
 {
 public:
-    LockerManager(T *locker) : _locker(locker)
+    explicit LockerManager(T *locker) : _locker(locker)
     {
         _locker->Lock();
     }
@@ -31,7 +31,6 @@ protected:
 
 private:
     T *_locker;
-
 };
 
 class ThreadLocker

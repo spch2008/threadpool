@@ -5,14 +5,17 @@
 * @brief
 **/
 
+#include <unistd.h>
+
+#include <vector>
+#include <iostream>
+
 #include "task.h"
 #include "thread_pool.h"
 #include "thread_data.h"
 
-#include <vector>
-#include <unistd.h>
-#include <iostream>
-using namespace std;
+using std::cout;
+using std::endl;
 
 ThreadDataManager gDataManager;
 

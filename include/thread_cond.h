@@ -9,12 +9,13 @@
 #define _THREAD_COND_H_
 
 #include <pthread.h>
+#include <string>
 #include "exception.h"
 
 class CondException : public Exception
 {
 public:
-    CondException(const string &text) : Exception(text) {}
+    explicit CondException(const string &text) : Exception(text) {}
     CondException(const string &text, int err) : Exception(text, err) {}
     ~CondException() throw() {}
 };

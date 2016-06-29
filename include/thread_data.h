@@ -9,13 +9,14 @@
 #define _THREAD_DATA_H_
 
 #include <pthread.h>
+#include <string>
 #include "exception.h"
 #include "thread_locker.h"
 
 class ThreadDataException : public Exception
 {
 public:
-    ThreadDataException(const string &err) : Exception(err) {}
+    explicit ThreadDataException(const string &err) : Exception(err) {}
     ThreadDataException(const string &err, int code) : Exception(err, code) {}
     ~ThreadDataException() throw() {}
 };
@@ -31,7 +32,7 @@ public:
         ThreadData() {}
         virtual ~ThreadData() {}
     };
-    
+
     ThreadDataManager();
     ~ThreadDataManager();
 
@@ -49,7 +50,7 @@ protected:
     ThreadDataManager &operator=(const ThreadDataManager &);
 
     static void CreateKey();
-    static void Destructor(void *);
+    static void Destructor(void *data);
 
 private:
     static pthread_once_t gOnceControl;
