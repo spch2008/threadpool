@@ -5,34 +5,32 @@
 * @brief
 **/
 
-#include <iostream>
-#include <stdlib.h>
 #include "thread_data.h"
 using namespace std;
 
-pthread_key_t gThreadKey;
+pthread_key_t ThreadDataManager::gThreadKey;
 pthread_once_t ThreadDataManager::gOnceControl = PTHREAD_ONCE_INIT;
 
 ThreadDataManager::ThreadDataManager()
 {
-    pthread_once(&gOnceControl, &ThreadDataManager::InitKey);
+    pthread_once(&gOnceControl, &ThreadDataManager::CreateKey);
 }
 
 ThreadDataManager::~ThreadDataManager()
 {
-//    pthread_key_delete(gThreadKey);
+    pthread_key_delete(gThreadKey);
 }
 
-void ThreadDataManager::InitKey()
+void ThreadDataManager::CreateKey()
 {
-    int ret = pthread_key_create(&gThreadKey, &DelKey);
+    int ret = pthread_key_create(&gThreadKey, &Destructor);
     if (ret != 0)
     {
         throw ThreadDataException("ThreadDataManager::InitKey", ret);
     }
 }
 
-void ThreadDataManager::DelKey(void *data)
+void ThreadDataManager::Destructor(void *data)
 {
     ThreadData *td = static_cast<ThreadData*>(data);
     delete td;

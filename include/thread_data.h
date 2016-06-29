@@ -48,11 +48,12 @@ protected:
     ThreadDataManager(const ThreadDataManager &);
     ThreadDataManager &operator=(const ThreadDataManager &);
 
-    static void InitKey();
-    static void DelKey(void *);
+    static void CreateKey();
+    static void Destructor(void *);
 
 private:
     static pthread_once_t gOnceControl;
+    static pthread_key_t gThreadKey;
 };
 
 #endif
